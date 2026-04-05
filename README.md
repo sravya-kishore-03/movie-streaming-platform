@@ -119,5 +119,7 @@ gcc project1.c -o project1
 4.Run the program:
 
 ./project1
-./project1
-Sample output:
+
+For Windows use:
+
+project1.exe
