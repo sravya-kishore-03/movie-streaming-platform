@@ -48,10 +48,10 @@ If found:
 -Set root to NULL
 # Compilation instructions
 Requirements:
--C compiler(GCC recommended)
+-C compiler(GCC recommended).
 -Steps to Compile and Run:
 1.Save the file as:
--project1.c
+-project1.c.
 2.Open terminal / command prompt
 3.Compile the program:
 -gcc project1.c -o project1
