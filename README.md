@@ -123,3 +123,5 @@ gcc project1.c -o project1
 For Windows use:
 
 project1.exe
+
+# Screenshots
