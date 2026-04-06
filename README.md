@@ -130,4 +130,6 @@ project1.exe
 
 2.![image alt](https://github.com/sravya-kishore-03/movie-streaming-platform/blob/main/Screenshot%202026-04-06%20215914.png)
 
-3.![image alt](
+3.![image alt](https://github.com/sravya-kishore-03/movie-streaming-platform/blob/main/Screenshot%202026-04-06%20220112.png)
+
+4.![image alt]
