@@ -2,313 +2,209 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Structure for Genre / Subgenre Node
 typedef struct Node {
     char name[50];
-    struct Node *child;     // first subgenre
-    struct Node *sibling;   // next genre/subgenre
+    struct Node* child;
+    struct Node* sibling;
 } Node;
 
-//Reset tree
-void deleteTree(Node* root) {
-    if (root == NULL) return;
-
-    // delete child subtree
-    deleteTree(root->child);
-
-    // delete sibling subtree
-    deleteTree(root->sibling);
-
-    // free current node
-    free(root);
-}
-
-// Function to create a new node (CREATE)
+// Create node
 Node* createNode(char name[]) {
     Node* newNode = (Node*)malloc(sizeof(Node));
-    if (newNode == NULL){
-        printf("Memory allocation failed!\n");
-        exit(1);
-    }
     strcpy(newNode->name, name);
     newNode->child = NULL;
     newNode->sibling = NULL;
     return newNode;
 }
 
-// Add Genre (root level)
-Node* addGenre(Node* root, char name[]) {
+// Add child (subgenre)
+void addChild(Node* parent, char name[]) {
     Node* newNode = createNode(name);
 
-    if (root == NULL) {
-        return newNode;
+    if (parent->child == NULL) {
+        parent->child = newNode;
+    } else {
+        Node* temp = parent->child;
+        while (temp->sibling != NULL)
+            temp = temp->sibling;
+        temp->sibling = newNode;
     }
-
-    Node* temp = root;
-    while (temp->sibling != NULL) {
-        temp = temp->sibling;
-    }
-    temp->sibling = newNode;
-
-    return root;
 }
 
-// Add Subgenre under a Genre
-void addSubgenre(Node* root, char parent[], char name[]) {
-    if (root == NULL) return;
+// Search node
+Node* search(Node* root, char name[]) {
+    if (root == NULL) return NULL;
 
-    if (strcmp(root->name, parent) == 0) {
-        Node* newNode = createNode(name);
+    if (strcmp(root->name, name) == 0)
+        return root;
 
-        if (root->child == NULL) {
-            root->child = newNode;
-        } else {
-            Node* temp = root->child;
-            while (temp->sibling != NULL) {
-                temp = temp->sibling;
-            }
-            temp->sibling = newNode;
-        }
-        return;
-    }
+    Node* found = search(root->child, name);
+    if (found) return found;
 
-    addSubgenre(root->child, parent, name);
-    addSubgenre(root->sibling, parent, name);
+    return search(root->sibling, name);
 }
 
-// Display Tree (READ)
-void display(Node* root, int level) {
-    if (root == NULL) return;
-
-    for (int i = 0; i < level; i++) {
-        printf("  ");
-    }
-    printf("- %s\n", root->name);
-
-    display(root->child, level + 1);
-    display(root->sibling, level);
-}
-
-// Function to print node in round style
-void printCircle(char name[]) {
-    int len = strlen(name);
-
-    // Top curve
-    printf("   ");
-    for (int i = 0; i < len + 2; i++) {
-        printf("_");
-    }
-    printf("\n");
-
-    // Middle (name)
-    printf("  ( %s )\n", name);
-
-    // Bottom curve
-    printf("   ");
-    for (int i = 0; i < len + 2; i++) {
-        printf("-");
-    }
-    printf("\n");
-}
-
-// Main display function
+// Display tree properly
 void displayTree(Node* root, int level) {
     if (root == NULL) return;
 
-    // Indentation
-    for (int i = 0; i < level; i++) {
-        printf("      ");
+    for (int i = 0; i < level; i++)
+        printf("    ");
+
+    printf("( %s )\n", root->name);
+
+    if (root->child != NULL) {
+        for (int i = 0; i < level; i++)
+            printf("    ");
+        printf("   |\n");
+
+        for (int i = 0; i < level; i++)
+            printf("    ");
+        printf("   v\n");
+
+        displayTree(root->child, level + 1);
     }
 
-    // Print current node
-    printCircle(root->name);
-
-    Node* child = root->child;
-
-    while (child != NULL) {
-
-        // Draw connection line
-        for (int i = 0; i < level; i++) {
-            printf("      ");
-        }
-        printf("     |\n");
-
-        for (int i = 0; i < level; i++) {
-            printf("      ");
-        }
-        printf("     v\n");
-
-        // Recursive call
-        displayTree(child, level + 1);
-
-        child = child->sibling;
-    }
+    displayTree(root->sibling, level);
 }
 
-
-// Search Node
-Node* search(Node* root, char name[], char path[]) {
-    if (root == NULL) return NULL;
-
-    // Save current path
-    char newPath[200];
-
-    if (strlen(path) == 0)
-        sprintf(newPath, "%s", root->name);
-    else
-        sprintf(newPath, "%s -> %s", path, root->name);
-
-    // Check if found
-    if (strcmp(root->name, name) == 0) {
-        printf("Found at: %s\n", newPath);
-        return root;
-    }
-
-    // Search in child
-    Node* found = search(root->child, name, newPath);
-    if (found != NULL) return found;
-
-    // Search in sibling
-    return search(root->sibling, name, path);
-}
-
-// Update Node (UPDATE)
-void updateNode(Node* root, char oldName[], char newName[]) {
-    char path[200]="";
-    Node* node = search(root, oldName,path);
-
-    if (node != NULL) {
+// Update node
+void update(Node* root, char oldName[], char newName[]) {
+    Node* node = search(root, oldName);
+    if (node)
         strcpy(node->name, newName);
-        printf("Updated successfully!\n\n");
-    } else {
+    else
         printf("Node not found!\n");
-    }
 }
 
-// Delete Node (DELETE)
-Node* deleteNode(Node* root, char name[]) {
-    if (root == NULL) return NULL;
+// Delete child node
+void deleteNode(Node* parent, char name[]) {
+    if (parent == NULL || parent->child == NULL) return;
 
-    // If root node itself matches
-    if (strcmp(root->name, name) == 0) {
-        deleteTree(root);
-        printf("Deleted successfully!\n\n");
-        return NULL;
-    }
-
-    Node* temp = root;
-
-
-    // Check children
+    Node* temp = parent->child;
     Node* prev = NULL;
-    Node* curr = root->child;
 
-    while (curr != NULL) {
-        if (strcmp(curr->name, name) == 0) {
-            if (prev == NULL) {
-                root->child = curr->sibling;
-            } else {
-                prev->sibling = curr->sibling;
-            }
-            deleteTree(curr);
-            printf("Deleted successfully!\n");
-            return root;
+    while (temp != NULL) {
+        if (strcmp(temp->name, name) == 0) {
+            if (prev == NULL)
+                parent->child = temp->sibling;
+            else
+                prev->sibling = temp->sibling;
+
+            free(temp);
+            printf("Deleted successfully\n");
+            return;
         }
-        prev = curr;
-        curr = curr->sibling;
+        prev = temp;
+        temp = temp->sibling;
     }
 
-    // Recursive delete
-    root->child = deleteNode(root->child, name);
-    root->sibling = deleteNode(root->sibling, name);
-
-    return root;
+    printf("Node not found!\n");
 }
 
-// MAIN MENU
+// Free memory
+void freeTree(Node* root) {
+    if (root == NULL) return;
+
+    freeTree(root->child);
+    freeTree(root->sibling);
+    free(root);
+}
+
+// MAIN
 int main() {
     Node* root = NULL;
     int choice;
-    char name[50], parent[50];
+    char name[50], parent[50], newName[50];
 
     while (1) {
-        printf("\n\n===== Movie Streaming Platform =====\n");
+        printf("\n===== Movie Streaming Platform =====\n");
         printf("1. Add Genre\n");
         printf("2. Add Subgenre\n");
         printf("3. Update Node\n");
         printf("4. Delete Node\n");
         printf("5. Search\n");
         printf("6. Display\n");
-        printf("7.Reset tree\n");
+        printf("7. Reset Tree\n");
         printf("8. Exit\n");
+
         printf("Enter your choice: ");
         scanf("%d", &choice);
-        printf("\n");
 
         switch (choice) {
 
         case 1:
             printf("Enter Genre name: ");
             scanf("%s", name);
-            root = addGenre(root, name);
+            root = createNode(name);
             break;
 
         case 2:
-            printf("Enter Parent Genre: ");
+            if (root == NULL) {
+                printf("Add Genre first!\n");
+                break;
+            }
+            printf("Enter parent name: ");
             scanf("%s", parent);
-            printf("Enter Subgenre name: ");
+
+            Node* p = search(root, parent);
+            if (p == NULL) {
+                printf("Parent not found!\n");
+                break;
+            }
+
+            printf("Enter subgenre name: ");
             scanf("%s", name);
-            addSubgenre(root, parent, name);
+            addChild(p, name);
             break;
 
         case 3:
             printf("Enter old name: ");
             scanf("%s", name);
             printf("Enter new name: ");
-            scanf("%s", parent);
-            updateNode(root, name, parent);
+            scanf("%s", newName);
+            update(root, name, newName);
             break;
 
         case 4:
-            printf("Enter name to delete: ");
+            printf("Enter parent name: ");
+            scanf("%s", parent);
+            printf("Enter node to delete: ");
             scanf("%s", name);
-            root = deleteNode(root, name);
+
+            Node* par = search(root, parent);
+            if (par)
+                deleteNode(par, name);
+            else
+                printf("Parent not found!\n");
             break;
 
         case 5:
             printf("Enter name to search: ");
             scanf("%s", name);
-            if (root == NULL){
-                printf("Tree is empty\n");
-                break;
-            }
-            char path[200]="";
-            if (search(root, name,path)==NULL)
+            if (search(root, name))
+                printf("Found!\n");
+            else
                 printf("Not Found!\n");
             break;
 
         case 6:
-            if(root == NULL){
-                printf("tree is empty\n");
-            }else{
             printf("\n--- Genre Tree ---\n\n");
             displayTree(root, 0);
-            }
             break;
 
         case 7:
-            deleteTree(root);
-            root=NULL;
-            printf("Tree reset successfully!\n");
+            freeTree(root);
+            root = NULL;
+            printf("Tree reset done\n");
             break;
 
         case 8:
-            printf("Exiting...\n");
+            printf("Exited!\n");
             exit(0);
 
-        
         default:
-            printf("Invalid choice!\n");
+            printf("Invalid choice\n");
         }
     }
 }
