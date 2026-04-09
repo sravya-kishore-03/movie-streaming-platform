@@ -44,7 +44,7 @@ Node* search(Node* root, char name[]) {
     return search(root->sibling, name);
 }
 
-// Display tree properly
+// Display tree
 void displayTree(Node* root, int level) {
     if (root == NULL) return;
 
@@ -77,7 +77,7 @@ void update(Node* root, char oldName[], char newName[]) {
         printf("Node not found!\n");
 }
 
-// Delete child node
+// Delete node
 void deleteNode(Node* parent, char name[]) {
     if (parent == NULL || parent->child == NULL) return;
 
@@ -133,10 +133,21 @@ int main() {
 
         switch (choice) {
 
+        // ✅ FIXED PART
         case 1:
             printf("Enter Genre name: ");
             scanf("%s", name);
-            root = createNode(name);
+
+            Node* newGenre = createNode(name);
+
+            if (root == NULL) {
+                root = newGenre;
+            } else {
+                Node* temp = root;
+                while (temp->sibling != NULL)
+                    temp = temp->sibling;
+                temp->sibling = newGenre;
+            }
             break;
 
         case 2:
