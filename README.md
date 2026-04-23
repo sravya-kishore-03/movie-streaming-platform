@@ -1,6 +1,10 @@
 # Movie-streaming-platform
 This project is a simple C program that manages movie genres and subgenres using a tree structure. Users can add, view, search, update, and delete genres through a menu-based system. The tree structure helps organize data in a clear parent–child format, making it easy to understand relationships between genres.
 
+# Team members
+Sravya sri
+Sai Geetha lakshmi
+
 # Problem statement
 
 In a movie streaming platform, movies are organized into genres and subgenres (for example: Action → Thriller → Spy). Managing this hierarchical data using simple lists is difficult and inefficient.
