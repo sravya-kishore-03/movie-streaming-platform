@@ -133,7 +133,7 @@ int main() {
 
         switch (choice) {
 
-        // ✅ FIXED PART
+        
         case 1:
             printf("Enter Genre name: ");
             scanf("%s", name);
